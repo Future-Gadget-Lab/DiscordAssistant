@@ -22,11 +22,11 @@ namespace Assistant.Modules.MicrosoftDocs
 
         private async Task<Embed> GetDocsEmbed(string search, string scope)
         {
-            Docs docs = await _http.GetModel<Docs>(HttpService.GetFormatedUrl(API_BASE, search, scope));
+            Docs docs = await _http.GetModel<Docs>(HttpService.FormatUrl(API_BASE, search, scope));
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(search)
                 .WithAuthor("Microsoft Docs", "https://docs.microsoft.com/en-us/media/logos/logo-ms-social.png", "https://docs.microsoft.com")
-                .WithDescription($"[View on website]({HttpService.GetFormatedUrl(DOCS_BASE, search, scope)})")
+                .WithDescription($"[View on website]({HttpService.FormatUrl(DOCS_BASE, search, scope)})")
                 .WithFields(docs.Results.Select(r =>
                     new EmbedFieldBuilder().WithName(r.Title).WithValue($"[{r.DisplayUrl.Content}]({r.Url})\n{r.Description}")
                 ))

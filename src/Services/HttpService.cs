@@ -10,7 +10,7 @@ namespace Assistant.Services
     {
         private HttpClient _http = new HttpClient();
 
-        public static string GetFormatedUrl(string baseUrl, params string[] values) =>
+        public static string FormatUrl(string baseUrl, params string[] values) =>
             string.Format(baseUrl, values.Select(v => HttpUtility.UrlEncode(v)).ToArray());
 
         public async Task<T> GetModel<T>(string url) =>
