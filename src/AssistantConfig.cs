@@ -13,8 +13,8 @@ namespace Assistant
         [JsonProperty("logSeverity")]
         public LogSeverity? LogSeverity { get; set; }
 
-        [JsonProperty("logFile")]
-        public string LogFile { get; set; }
+        [JsonProperty("logDir")]
+        public string LogDir { get; set; }
 
         public static AssistantConfig FromFile(string path) =>
             JsonConvert.DeserializeObject<AssistantConfig>(File.ReadAllText(path));
