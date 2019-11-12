@@ -6,7 +6,6 @@ namespace Assistant.Modules.MicrosoftDocs
 {
     public class Category
     {
-
         [JsonProperty("type")]
         public int Type { get; set; }
 
@@ -25,14 +24,12 @@ namespace Assistant.Modules.MicrosoftDocs
 
     public class Facets
     {
-
         [JsonProperty("category")]
         public IList<Category> Category { get; set; }
     }
 
     public class HitHighlight
     {
-
         [JsonProperty("start")]
         public int Start { get; set; }
 
@@ -42,7 +39,6 @@ namespace Assistant.Modules.MicrosoftDocs
 
     public class DisplayUrl
     {
-
         [JsonProperty("content")]
         public string Content { get; set; }
 
@@ -52,7 +48,6 @@ namespace Assistant.Modules.MicrosoftDocs
 
     public class Description
     {
-
         [JsonProperty("content")]
         public string Content { get; set; }
 
@@ -62,7 +57,6 @@ namespace Assistant.Modules.MicrosoftDocs
 
     public class Result
     {
-
         [JsonProperty("title")]
         public string Title { get; set; }
 
@@ -87,7 +81,6 @@ namespace Assistant.Modules.MicrosoftDocs
 
     public class Docs
     {
-
         [JsonProperty("facets")]
         public Facets Facets { get; set; }
 
