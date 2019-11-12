@@ -17,7 +17,7 @@ namespace Assistant
         {
             DiscordSocketConfig clientConfig = new DiscordSocketConfig
             {
-                LogLevel = config.LogSeverity ?? LoggingService.DefaultSeverity
+                LogLevel = config.Log?.Severity ?? LoggingService.DefaultSeverity
             };
 
             _config = config;

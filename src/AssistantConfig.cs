@@ -4,17 +4,22 @@ using System.IO;
 
 namespace Assistant
 {
+    public class LogConfig
+    {
+        [JsonProperty("severity")]
+        public LogSeverity? Severity { get; set; }
+        [JsonProperty("path")]
+        public string Path { get; set; }
+    }
+
     public class AssistantConfig
     {
         [JsonProperty("token")]
         public string Token { get; set; }
         [JsonProperty("prefix")]
         public string Prefix { get; set; }
-        [JsonProperty("logSeverity")]
-        public LogSeverity? LogSeverity { get; set; }
-
-        [JsonProperty("logDir")]
-        public string LogDir { get; set; }
+        [JsonProperty("log")]
+        public LogConfig Log { get; set; }
 
         public static AssistantConfig FromFile(string path) =>
             JsonConvert.DeserializeObject<AssistantConfig>(File.ReadAllText(path));
