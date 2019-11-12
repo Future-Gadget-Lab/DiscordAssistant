@@ -17,7 +17,7 @@ namespace Assistant
         {
             DiscordSocketConfig clientConfig = new DiscordSocketConfig
             {
-                LogLevel = config.LogSeverity ?? LogSeverity.Info
+                LogLevel = config.LogSeverity ?? LoggingService.DefaultSeverity
             };
 
             _config = config;
@@ -27,16 +27,10 @@ namespace Assistant
                 .AddSingleton(_client)
                 .AddSingleton<HttpService>()
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<LoggingService>()
                 .AddSingleton<IInitializable>(s => s.GetRequiredService<CommandHandler>())
+                .AddSingleton<IInitializable>(s => s.GetRequiredService<LoggingService>())
                 .BuildServiceProvider();
-            _client.Log += Log;
-        }
-
-        public Task Log(LogMessage message)
-        {
-            if (message.Severity > _config.LogSeverity.GetValueOrDefault())
-                return Task.CompletedTask;
-            return Console.Out.WriteLineAsync(message.ToString());
         }
 
         public async Task StartAsync()
