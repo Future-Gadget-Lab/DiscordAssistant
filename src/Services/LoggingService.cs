@@ -13,14 +13,17 @@ namespace Assistant.Services
 
         private DiscordSocketClient _client;
         private LogSeverity _severity;
-        private FileStream _logFile;
+        private StreamWriter _logFile;
 
         public LoggingService(DiscordSocketClient client, AssistantConfig config)
         {
             _client = client;
             _severity = config.LogSeverity ?? DefaultSeverity;
             if (config.LogFile != null)
-                _logFile = new FileStream(config.LogFile, FileMode.Append, FileAccess.Write);
+            {
+                _logFile = new StreamWriter(config.LogFile, true);
+                _logFile.AutoFlush = true;
+            }
         }
 
         public Task Initialize()
@@ -29,17 +32,18 @@ namespace Assistant.Services
             return Task.CompletedTask;
         }
 
-        public async Task LogAsync(LogMessage message)
+        public async Task LogAsync(LogMessage logMessage)
         {
-            if (_severity > message.Severity)
+            if (_severity > logMessage.Severity)
                 return;
 
-            await Console.Out.WriteLineAsync(message.ToString());
+            string message = logMessage.ToString();
+            await Console.Out.WriteLineAsync(message);
 
             if (_logFile == null)
                 return;
 
-            await _logFile.WriteAsync(Encoding.UTF8.GetBytes(message.ToString()));
+            await _logFile.WriteLineAsync(message);
         }
     }
 }
