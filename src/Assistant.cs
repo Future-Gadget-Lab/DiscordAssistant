@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assistant.Services;
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -24,6 +25,7 @@ namespace Assistant
             _services = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
+                .AddSingleton<HttpService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<IInitializable>(s => s.GetRequiredService<CommandHandler>())
                 .BuildServiceProvider();

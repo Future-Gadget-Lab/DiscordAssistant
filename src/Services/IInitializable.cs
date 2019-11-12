@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Assistant
+namespace Assistant.Services
 {
     interface IInitializable
     {

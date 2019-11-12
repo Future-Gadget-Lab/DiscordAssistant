@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Assistant
+namespace Assistant.Services
 {
     public class CommandHandler : IInitializable
     {
@@ -18,7 +18,10 @@ namespace Assistant
         {
             _config = services.GetRequiredService<AssistantConfig>();
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _commands = services.GetService<CommandService>() ?? new CommandService(); 
+            _commands = services.GetService<CommandService>() ?? new CommandService(new CommandServiceConfig
+            {
+                DefaultRunMode = RunMode.Async
+            });
             _services = services;
         }
 
@@ -40,7 +43,7 @@ namespace Assistant
                 return;
 
             SocketCommandContext context = new SocketCommandContext(_client, message);
-            IResult result = await _commands.ExecuteAsync(context, argPos, null);
+            IResult result = await _commands.ExecuteAsync(context, argPos, _services);
             if (result.IsSuccess)
                 return;
 
