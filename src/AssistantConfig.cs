@@ -10,6 +10,14 @@ namespace Assistant
         public LogSeverity? Severity { get; set; }
         [JsonProperty("path")]
         public string Path { get; set; }
+        [JsonProperty("extension")]
+        public string Extension { get; set; }
+        [JsonProperty("ext")]
+        public string Ext
+        {
+            get => Extension;
+            set => Extension = value;
+        }
     }
 
     public class AssistantConfig

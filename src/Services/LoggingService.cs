@@ -29,7 +29,10 @@ namespace Assistant.Services
             {
                 if (!Directory.Exists(_config.Path))
                     Directory.CreateDirectory(_config.Path);
-                _logFile = new StreamWriter(Path.Combine(_config.Path, DateTime.Now.ToString("yyyy-dd-MM")), true);
+                string fileName = DateTime.Now.ToString("yyyy-dd-MM");
+                if (!string.IsNullOrWhiteSpace(_config.Extension))
+                    fileName += _config.Extension;
+                _logFile = new StreamWriter(Path.Combine(_config.Path, fileName), true);
                 _logFile.AutoFlush = true;
             }
             _client.Log += LogAsync;
