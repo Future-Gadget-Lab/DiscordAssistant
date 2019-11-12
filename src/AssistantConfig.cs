@@ -8,10 +8,13 @@ namespace Assistant
     {
         [JsonProperty("severity")]
         public LogSeverity? Severity { get; set; }
+
         [JsonProperty("path")]
         public string Path { get; set; }
+
         [JsonProperty("extension")]
         public string Extension { get; set; }
+
         [JsonProperty("ext")]
         public string Ext
         {
@@ -24,8 +27,11 @@ namespace Assistant
     {
         [JsonProperty("token")]
         public string Token { get; set; }
+
+        // TODO: allow list of prefixes
         [JsonProperty("prefix")]
         public string Prefix { get; set; }
+
         [JsonProperty("log")]
         public LogConfig Log { get; set; }
 
