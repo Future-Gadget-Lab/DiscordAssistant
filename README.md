@@ -21,7 +21,7 @@ The fields are as follows:
 Property | Purpose | Required
 -------- | ------- | --------
 token | The [token](https://discordapp.com/developers/docs/topics/oauth2#bots) the bot will login with | yes
-prefix | The command prefix | yes
+prefix | The command prefix | no
 log.severity | The [severity](https://discord.foxbot.me/stable/api/Discord.LogSeverity.html) a message must be to log | no
 log.path | The path log files will go, no value means no log files | no
 log.extension | The extension to suffix log files with (ex .log) | no

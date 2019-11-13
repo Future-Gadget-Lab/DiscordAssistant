@@ -37,7 +37,7 @@ namespace Assistant.Services
             if (message == null) return;
 
             int argPos = 0;
-            if (!(message.HasStringPrefix(_config.Prefix, ref argPos, StringComparison.OrdinalIgnoreCase) ||
+            if (!((_config.Prefix != null && message.HasStringPrefix(_config.Prefix, ref argPos, StringComparison.OrdinalIgnoreCase)) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
                 return;
