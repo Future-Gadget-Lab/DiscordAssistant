@@ -43,11 +43,15 @@ namespace Assistant.Services
                 return;
 
             SocketCommandContext context = new SocketCommandContext(_client, message);
-            IResult result = await _commands.ExecuteAsync(context, argPos, _services);
-            if (result.IsSuccess)
-                return;
 
-            await message.Channel.SendMessageAsync(result.ErrorReason);
+            using (context.Channel.EnterTypingState())
+            {
+                IResult result = await _commands.ExecuteAsync(context, argPos, _services);
+                if (result.IsSuccess)
+                    return;
+
+                await message.Channel.SendMessageAsync(result.ErrorReason);
+            }
         }
     }
 }
