@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -12,15 +13,17 @@ namespace Assistant.Services
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly AssistantConfig _config;
+        private readonly LoggingService _logger;
         private readonly IServiceProvider _services;
 
         public CommandHandler(IServiceProvider services)
         {
             _config = services.GetRequiredService<AssistantConfig>();
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _logger = services.GetRequiredService<LoggingService>();
             _commands = services.GetService<CommandService>() ?? new CommandService(new CommandServiceConfig
             {
-                DefaultRunMode = RunMode.Async
+                DefaultRunMode = RunMode.Async,
             });
             _services = services;
         }
@@ -28,7 +31,21 @@ namespace Assistant.Services
         public async Task Initialize()
         {
             _client.MessageReceived += HandleCommand;
+            _commands.CommandExecuted += CommandExecuted;
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        }
+
+        private async Task CommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        {
+            if (result.IsSuccess)
+                return;
+
+            if (result.Error >= CommandError.Exception)
+            {
+                await _logger.LogAsync(new LogMessage(LogSeverity.Error, "CommandHandler", $"An exception or runtime error was encountered: {result.ErrorReason}"));
+                return;
+            }
+            await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
         private async Task HandleCommand(SocketMessage socketMessage)
@@ -46,11 +63,7 @@ namespace Assistant.Services
 
             using (context.Channel.EnterTypingState())
             {
-                IResult result = await _commands.ExecuteAsync(context, argPos, _services);
-                if (result.IsSuccess)
-                    return;
-
-                await message.Channel.SendMessageAsync(result.ErrorReason);
+                await _commands.ExecuteAsync(context, argPos, _services);
             }
         }
     }

@@ -41,7 +41,7 @@ namespace Assistant.Services
 
         public async Task LogAsync(LogMessage logMessage)
         {
-            if (_config?.Severity.GetValueOrDefault(LogSeverity.Info) > logMessage.Severity)
+            if (_config?.Severity.GetValueOrDefault(LogSeverity.Info) < logMessage.Severity)
                 return;
 
             string message = logMessage.ToString();
