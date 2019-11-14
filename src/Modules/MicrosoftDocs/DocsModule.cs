@@ -30,7 +30,7 @@ namespace Assistant.Modules.MicrosoftDocs
 
         private async Task<Embed> GetDocsEmbed(string search, string scope)
         {
-            Docs docs = await _http.GetModel<Docs>(HttpService.FormatUrl(ApiBase, search, scope));
+            Docs docs = await _http.GetModelAsync<Docs>(HttpService.FormatUrl(ApiBase, search, scope));
             EmbedBuilder embed = new EmbedBuilder()
                 .WithTitle(search)
                 .WithAuthor("Microsoft Docs", "https://docs.microsoft.com/en-us/media/logos/logo-ms-social.png", "https://docs.microsoft.com")

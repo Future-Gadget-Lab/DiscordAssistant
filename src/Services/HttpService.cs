@@ -13,7 +13,7 @@ namespace Assistant.Services
         public static string FormatUrl(string baseUrl, params string[] values) =>
             string.Format(baseUrl, values.Select(v => HttpUtility.UrlEncode(v)).ToArray());
 
-        public async Task<T> GetModel<T>(string url) =>
+        public async Task<T> GetModelAsync<T>(string url) =>
             JsonConvert.DeserializeObject<T>(await _http.GetStringAsync(url));
     }
 }
