@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Assistant.Modules.CodeExec.Languages
+﻿namespace Assistant.Modules.CodeExec.Languages
 {
     public class CSharp : ILanguage
     {
@@ -11,6 +9,7 @@ namespace Assistant.Modules.CodeExec.Languages
         public string RunCommand { get; } = "dotnet run -p {0}";
         public string SourceFile { get; } =
             "using System;" +
+            "using System.Diagnostics;" +
             "class Program" +
             "{{" +
             "   static void Main(string[] args)" +
