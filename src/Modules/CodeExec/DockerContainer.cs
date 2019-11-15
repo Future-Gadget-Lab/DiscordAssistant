@@ -15,23 +15,32 @@ namespace Assistant.Modules.CodeExec
     public class DockerContainer : IDisposable
     {
         private readonly string _id;
-        public DockerContainer(string id)
+        private readonly ExecutionConfig _config;
+
+        public DockerContainer(string id, ExecutionConfig config)
         {
             _id = id;
+            _config = config;
         }
 
-        public static async Task<DockerContainer> CreateContainerAsync(string image)
+        public static async Task<DockerContainer> CreateContainerAsync(string image, ExecutionConfig config)
         {
-            var result = await RunDockerCommandAsync($"run --network=none -t -d {image}", false);
+            var result = await RunDockerCommandAsync($"run --network=none --cpus={config.CPUs} --memory={config.Memory} -t -d {image}", false);
             if (result.ExitCode != 0)
                 throw new Exception($"An error occurred creating a container (exit code ${result.ExitCode}): {result.StandardError}");
             if (string.IsNullOrEmpty(result.StandardOutput))
                 throw new Exception("Unable to retrieve container ID");
-            return new DockerContainer(result.StandardOutput);
+            return new DockerContainer(result.StandardOutput, config);
         }
 
-        public Task<ProcessResult> ExecAsync(string command) =>
-               RunDockerCommandAsync($"exec {_id} {command}");
+        public async Task<ProcessResult> ExecAsync(string command)
+        {
+            Task<ProcessResult> runningTask = RunDockerCommandAsync($"exec {_id} {command}");
+            if (await Task.WhenAny(runningTask, Task.Delay(TimeSpan.FromSeconds(_config.Timeout))) == runningTask)
+                return runningTask.Result;
+            else
+                throw new TimeoutException("Execution timed out.");
+        }
 
         public async Task<string> ExecOutAsync(string command)
         {

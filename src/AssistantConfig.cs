@@ -23,6 +23,18 @@ namespace Assistant
         }
     }
 
+    public class ExecutionConfig
+    {
+        [JsonProperty("memory")]
+        public string Memory { get; set; }
+
+        [JsonProperty("cpus")]
+        public float CPUs { get; set; }
+
+        [JsonProperty("timeout")]
+        public int Timeout { get; set; }
+    }
+
     public class AssistantConfig
     {
         [JsonProperty("token")]
@@ -36,6 +48,9 @@ namespace Assistant
 
         [JsonProperty("snippetPath")]
         public string SnippetPath { get; set; }
+
+        [JsonProperty("exec")]
+        public ExecutionConfig Exec { get; set; }
 
         public static AssistantConfig FromFile(string path) =>
             JsonConvert.DeserializeObject<AssistantConfig>(File.ReadAllText(path));

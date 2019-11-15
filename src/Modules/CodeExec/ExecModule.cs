@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Assistant.Modules.CodeExec
@@ -12,7 +13,8 @@ namespace Assistant.Modules.CodeExec
     [Group("exec")]
     public class ExecModule : ModuleBase
     {
-        private readonly string SnippetDirectory;
+        private readonly string _snippets;
+        private readonly ExecutionConfig _config;
         private static readonly string ContainerDirectory = "/home/submitted_code";
         private static readonly List<ILanguage> Languages = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(ILanguage).IsAssignableFrom(t) && !t.IsInterface)
@@ -21,7 +23,13 @@ namespace Assistant.Modules.CodeExec
 
         public ExecModule(AssistantConfig config)
         {
-            SnippetDirectory = config.SnippetPath ?? "submitted_code";
+            _snippets = config.SnippetPath ?? "submitted_code";
+            _config = _config ?? new ExecutionConfig
+            {
+                CPUs = 0.8F,
+                Memory = "250m",
+                Timeout = 10
+            };
         }
 
         private static ILanguage GetLanguage(string name) =>
@@ -52,13 +60,21 @@ namespace Assistant.Modules.CodeExec
                 await ReplyAsync("Unsupported language.");
                 return;
             }
-            await ReplyAsync(embed: GetOutputEmbed(language, await RunAsync(language, snippet.Code)));
+            try
+            {
+                ProcessResult result = await RunAsync(language, snippet.Code);
+                await ReplyAsync(embed: GetOutputEmbed(language, result));
+            }
+            catch (TimeoutException)
+            {
+                await ReplyAsync($"{Context.User.Mention} Execution timed out");
+            }
         }
 
         private async Task<ProcessResult> RunAsync(ILanguage lang, string code)
         {
-            using DockerContainer container = await DockerContainer.CreateContainerAsync(lang.DockerImage);
-            string localDir = Path.Combine(SnippetDirectory, Context.User.Id.ToString());
+            using DockerContainer container = await DockerContainer.CreateContainerAsync(lang.DockerImage, _config);
+            string localDir = Path.Combine(_snippets, Context.User.Id.ToString());
             string codeFile = Path.GetRandomFileName() + $".{lang.Extension}";
             string codeFilePath = Path.Combine(localDir, codeFile);
             Directory.CreateDirectory(localDir);
