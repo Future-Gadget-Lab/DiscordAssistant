@@ -51,6 +51,7 @@ namespace Assistant.Modules.CodeExec
         }
 
         [Command]
+        [UsageLimit(10, 2)]
         public async Task Exec([Remainder]CodeSnippet snippet)
         {
             ILanguage language = GetLanguage(snippet.Language);
