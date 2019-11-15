@@ -40,11 +40,18 @@ namespace Assistant.Services
         private async Task CommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             if (result.IsSuccess)
+            {
+                if (!string.IsNullOrEmpty(_config.SuccessEmote))
+                    await context.Message.AddReactionAsync(new Emoji(_config.SuccessEmote));
                 return;
+            }
+
+            if (!string.IsNullOrEmpty(_config.FailEmote))
+                await context.Message.AddReactionAsync(new Emoji(_config.FailEmote));
 
             if (result.Error >= CommandError.Exception)
             {
-                await _logger.LogAsync(new LogMessage(LogSeverity.Error, "CommandHandler", $"An exception or runtime error was encountered: {result.ErrorReason}"));
+                await _logger.LogAsync(new LogMessage(LogSeverity.Error, "CmdHandler", $"An exception or runtime error was encountered: {result.ErrorReason}"));
                 return;
             }
             await context.Channel.SendMessageAsync(result.ErrorReason);

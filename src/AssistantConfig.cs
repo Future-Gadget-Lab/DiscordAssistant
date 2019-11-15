@@ -43,6 +43,12 @@ namespace Assistant
         [JsonProperty("prefix")]
         public string Prefix { get; set; }
 
+        [JsonProperty("successEmote")]
+        public string SuccessEmote { get; set; }
+
+        [JsonProperty("failEmote")]
+        public string FailEmote { get; set; }
+
         [JsonProperty("log")]
         public LogConfig Log { get; set; }
 
