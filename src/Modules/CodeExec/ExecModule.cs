@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,18 +12,36 @@ namespace Assistant.Modules.CodeExec
     [Group("exec")]
     public class ExecModule : ModuleBase
     {
-        // TOOD: configurable
-        private static readonly string SnippetDirectory = "submitted_code";
+        private readonly string SnippetDirectory = "submitted_code";
+        private static readonly string ContainerDirectory = "/home/submitted_code";
         private static readonly List<ILanguage> Languages = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(ILanguage).IsAssignableFrom(t) && !t.IsInterface)
             .Select(t => (ILanguage)Activator.CreateInstance(t))
             .ToList();
 
+        public ExecModule(AssistantConfig config)
+        {
+            SnippetDirectory = config.SnippetPath ?? "submitted_code";
+        }
+
         private static ILanguage GetLanguage(string name) =>
             Languages.FirstOrDefault(l => l.Name.ToLower() == name.ToLower() || l.Aliases.Any(a => a.ToLower() == name.ToLower()));
 
-        private static string ContainerPath(string path) =>
-            Path.Combine("/home", path).Replace('\\', '/');
+        private static Embed GetOutputEmbed(ILanguage lang, ProcessResult result)
+        {
+            EmbedBuilder embed = new EmbedBuilder()
+                .WithTitle($"{lang.Name} - Run Results")
+                .AddField("Exit code", result.ExitCode)
+                .WithColor(result.ExitCode == 0 ? Color.Green : Color.Red);
+
+            if (!string.IsNullOrEmpty(result.StandardOutput))
+                embed.AddField("Out", $"```\n{result.StandardOutput}```");
+
+            if (!string.IsNullOrEmpty(result.StandardError))
+                embed.AddField("Error", $"```\n{result.StandardError}```");
+
+            return embed.Build();
+        }
 
         [Command]
         public async Task Exec([Remainder]CodeSnippet snippet)
@@ -33,27 +52,20 @@ namespace Assistant.Modules.CodeExec
                 await ReplyAsync("Unsupported language.");
                 return;
             }
-            await ReplyAsync(await RunAsync(language, snippet.Code));
+            await ReplyAsync(embed: GetOutputEmbed(language, await RunAsync(language, snippet.Code)));
         }
 
-        private async Task<string> RunAsync(ILanguage lang, string code)
+        private async Task<ProcessResult> RunAsync(ILanguage lang, string code)
         {
             using DockerContainer container = await DockerContainer.CreateContainerAsync(lang.DockerImage);
-            string sourceDirectory = Path.Combine(SnippetDirectory, Context.User.Id.ToString());
-            string codeFile = Path.Combine(sourceDirectory, Path.GetRandomFileName() + $".{lang.Extension}");
-            Directory.CreateDirectory(sourceDirectory);
-            await container.ExecAsync($"mkdir -p {ContainerPath(sourceDirectory)}");
-            await File.WriteAllTextAsync(codeFile, string.Format(lang.SourceFile, code));
-            await container.CopyAsync(codeFile, ContainerPath(codeFile));
+            string localDir = Path.Combine(SnippetDirectory, Context.User.Id.ToString());
+            string codeFile = Path.GetRandomFileName() + $".{lang.Extension}";
+            string codeFilePath = Path.Combine(localDir, codeFile);
+            Directory.CreateDirectory(localDir);
+            await File.WriteAllTextAsync(codeFilePath, string.Format(lang.SourceFile, code));
+            await container.CopyAsync(codeFilePath, Path.Combine(ContainerDirectory, codeFile));
 
-            foreach (string file in lang.Environment.Keys)
-            {
-                string filePath = Path.Combine(sourceDirectory, file);
-                await File.WriteAllTextAsync(filePath, lang.Environment[file]);
-                await container.CopyAsync(filePath, ContainerPath(filePath));
-            }
-
-            return await container.ExecOutAsync(string.Format(lang.RunCommand, ContainerPath(sourceDirectory)));
+            return await container.ExecAsync(string.Format(lang.RunCommand, ContainerDirectory));
         }
     }
 }

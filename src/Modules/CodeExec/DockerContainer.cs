@@ -22,7 +22,7 @@ namespace Assistant.Modules.CodeExec
 
         public static async Task<DockerContainer> CreateContainerAsync(string image)
         {
-            var result = await RunDockerCommandAsync($"run --network=none -t -d {image}");
+            var result = await RunDockerCommandAsync($"run --network=none -t -d {image}", false);
             if (result.ExitCode != 0)
                 throw new Exception($"An error occurred creating a container (exit code ${result.ExitCode}): {result.StandardError}");
             if (string.IsNullOrEmpty(result.StandardOutput))
@@ -48,7 +48,7 @@ namespace Assistant.Modules.CodeExec
                 throw new Exception($"An error occurred while copying a file into a container (exit code ${result.ExitCode}): {result.StandardError}");
         }
 
-        private static Task<ProcessResult> RunDockerCommandAsync(string command)
+        private static Task<ProcessResult> RunDockerCommandAsync(string command, bool appendNewline = true)
         {
             TaskCompletionSource<ProcessResult> taskSource = new TaskCompletionSource<ProcessResult>();
 
@@ -67,8 +67,27 @@ namespace Assistant.Modules.CodeExec
             StringBuilder output = new StringBuilder();
             StringBuilder error = new StringBuilder();
 
-            process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => output.Append(e.Data);
-            process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) => error.Append(e.Data);
+            process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+            {
+                if (e.Data == null)
+                    return;
+
+                if (appendNewline)
+                    output.AppendLine(e.Data);
+                else
+                    output.Append(e.Data);
+
+            };
+            process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+            {
+                if (e.Data == null)
+                    return;
+
+                if (appendNewline)
+                    error.AppendLine(e.Data);
+                else
+                    error.Append(e.Data);
+            };
             process.Exited += (object sender, EventArgs e) =>
             {
                 taskSource.SetResult(new ProcessResult

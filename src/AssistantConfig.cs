@@ -35,6 +35,10 @@ namespace Assistant
         [JsonProperty("log")]
         public LogConfig Log { get; set; }
 
+        // TODO: container runtime limits and timeouts 
+        [JsonProperty("snippetPath")]
+        public string SnippetPath { get; set; }
+
         public static AssistantConfig FromFile(string path) =>
             JsonConvert.DeserializeObject<AssistantConfig>(File.ReadAllText(path));
     }

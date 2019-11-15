@@ -10,6 +10,5 @@ namespace Assistant.Modules.CodeExec
         public string DockerImage { get; }
         public string RunCommand { get; }
         public string SourceFile { get; }
-        public Dictionary<string, string> Environment { get; }
     }
 }
