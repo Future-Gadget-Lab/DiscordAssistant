@@ -26,3 +26,6 @@ log.severity | The [severity](https://discord.foxbot.me/stable/api/Discord.LogSe
 log.path | The path log files will go, no value means no log files | no
 log.extension | The extension to suffix log files with (ex .log) | no
 log.ext | Short name for log.extension | no
+exec.memory | Max memory usage for containers | no
+exec.cpus | Max CPU resources for containers | no
+exec.timeout | Max time an exec command can take | no
