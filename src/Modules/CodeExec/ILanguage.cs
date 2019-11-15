@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Assistant.Modules.CodeExec
+﻿namespace Assistant.Modules.CodeExec
 {
     public interface ILanguage
     {
