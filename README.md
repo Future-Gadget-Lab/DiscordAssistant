@@ -18,14 +18,14 @@ in your current working directory. The config file should look similar to this:
 ```
 The fields are as follows:
 
-Property | Purpose | Required
--------- | ------- | --------
-token | The [token](https://discordapp.com/developers/docs/topics/oauth2#bots) the bot will login with | yes
-prefix | The command prefix | no
-log.severity | The [severity](https://discord.foxbot.me/stable/api/Discord.LogSeverity.html) a message must be to log | no
-log.path | The path log files will go, no value means no log files | no
-log.extension | The extension to suffix log files with (ex .log) | no
-log.ext | Short name for log.extension | no
-exec.memory | Max memory usage for containers | no
-exec.cpus | Max CPU resources for containers | no
-exec.timeout | Max time an exec command can take | no
+Property | Purpose 
+-------- | ------- 
+token (required) | The [token](https://discordapp.com/developers/docs/topics/oauth2#bots) the bot will login with
+prefix | The command prefix
+log.severity | The [severity](https://discord.foxbot.me/stable/api/Discord.LogSeverity.html) a message must be to log
+log.path | The path log files will go, no value means no log files
+log.extension | The extension to suffix log files with (ex .log)
+log.ext | Short name for log.extension
+exec.memory | Max memory usage for containers
+exec.cpus | Max CPU resources for containers
+exec.timeout | Max time an exec command can take
