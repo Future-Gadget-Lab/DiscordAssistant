@@ -28,14 +28,12 @@ namespace Assistant
         [JsonProperty("token")]
         public string Token { get; set; }
 
-        // TODO: allow list of prefixes
         [JsonProperty("prefix")]
         public string Prefix { get; set; }
 
         [JsonProperty("log")]
         public LogConfig Log { get; set; }
 
-        // TODO: container runtime limits and timeouts 
         [JsonProperty("snippetPath")]
         public string SnippetPath { get; set; }
 

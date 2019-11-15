@@ -10,8 +10,6 @@ namespace Assistant.Modules.MicrosoftDocs
     [Group("docs")]
     public class DocsModule : ModuleBase
     {
-        // TODO: allow searching by category (reference/learn/docs/all)
-
         private readonly HttpService _http;
         private static readonly string ApiBase = "https://docs.microsoft.com/api/search?search={0}&locale=en-us&%24filter=scopes%2Fany%28t%3A+t+eq+%27{1}%27%29&facet=category&%24skip=0&%24top=5";
         private static readonly string DocsBase = "https://docs.microsoft.com/en-us/search/?search={0}&category=All&scope={1}";
