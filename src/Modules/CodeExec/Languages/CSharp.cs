@@ -6,7 +6,7 @@
         public string[] Aliases { get; } = { "cs", "csharp" };
         public string Extension { get; } = "cs";
         public string DockerImage { get; } = "xoltia/csharp";
-        public string RunCommand { get; } = "dotnet run -p {0}";
+        public string RunCommand { get; } = "dotnet run";
         public string SourceFile { get; } =
             "using System;" +
             "using System.Diagnostics;" +

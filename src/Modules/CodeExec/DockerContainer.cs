@@ -33,21 +33,13 @@ namespace Assistant.Modules.CodeExec
             return new DockerContainer(result.StandardOutput, config);
         }
 
-        public async Task<ProcessResult> ExecAsync(string command)
+        public async Task<ProcessResult> ExecAsync(string command, string workingDir)
         {
-            Task<ProcessResult> runningTask = RunDockerCommandAsync($"exec {_id} {command}");
+            Task<ProcessResult> runningTask = RunDockerCommandAsync($"exec -w {workingDir} {_id} {command}");
             if (await Task.WhenAny(runningTask, Task.Delay(TimeSpan.FromSeconds(_config.Timeout))) == runningTask)
                 return runningTask.Result;
             else
                 throw new TimeoutException("Execution timed out.");
-        }
-
-        public async Task<string> ExecOutAsync(string command)
-        {
-            var result = await ExecAsync(command);
-            if (result.ExitCode != 0)
-                throw new Exception($"An error occurred executing command '{command}': {result.StandardError}");
-            return result.StandardOutput;
         }
 
         public async Task CopyAsync(string src, string dest)

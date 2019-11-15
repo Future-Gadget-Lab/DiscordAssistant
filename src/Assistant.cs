@@ -25,6 +25,7 @@ namespace Assistant
             _services = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
+                .AddSingleton<Random>()
                 .AddSingleton<HttpService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<LoggingService>()

@@ -14,14 +14,18 @@ namespace Assistant.Modules.CodeExec
     {
         private readonly string _snippets;
         private readonly ExecutionConfig _config;
+        private readonly Random _random;
+
+        private static readonly string AlphabeticChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         private static readonly string ContainerDirectory = "/home/submitted_code";
         private static readonly List<ILanguage> Languages = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(ILanguage).IsAssignableFrom(t) && !t.IsInterface)
             .Select(t => (ILanguage)Activator.CreateInstance(t))
             .ToList();
 
-        public ExecModule(AssistantConfig config)
+        public ExecModule(AssistantConfig config, Random random)
         {
+            _random = random;
             _snippets = config.SnippetPath ?? "submitted_code";
             _config = _config ?? new ExecutionConfig
             {
@@ -74,14 +78,27 @@ namespace Assistant.Modules.CodeExec
         private async Task<ProcessResult> RunAsync(ILanguage lang, string code)
         {
             using DockerContainer container = await DockerContainer.CreateContainerAsync(lang.DockerImage, _config);
+            // Because Java is dumb
+            char[] classChars = new char[8];
+            for (int i = 0; i < classChars.Length; i++)
+                classChars[i] = AlphabeticChars[_random.Next(AlphabeticChars.Length)];
+            string mainClass = new string(classChars);
             string localDir = Path.Combine(_snippets, Context.User.Id.ToString());
-            string codeFile = Path.GetRandomFileName() + $".{lang.Extension}";
+            string codeFile = $"{mainClass}.{lang.Extension}";
             string codeFilePath = Path.Combine(localDir, codeFile);
+  
             Directory.CreateDirectory(localDir);
-            await File.WriteAllTextAsync(codeFilePath, string.Format(lang.SourceFile, code));
+            await File.WriteAllTextAsync(codeFilePath, string.Format(lang.SourceFile, code, mainClass));
             await container.CopyAsync(codeFilePath, Path.Combine(ContainerDirectory, codeFile));
 
-            return await container.ExecAsync(string.Format(lang.RunCommand, ContainerDirectory));
+            if (lang is ICompiledLanguage)
+            {
+                ICompiledLanguage compilable = lang as ICompiledLanguage;
+                ProcessResult compileResult = await container.ExecAsync(string.Format(compilable.CompileCommand, codeFile), ContainerDirectory);
+                if (compileResult.ExitCode != 0)
+                    return compileResult;
+            }
+            return await container.ExecAsync(string.Format(lang.RunCommand, codeFile, mainClass), ContainerDirectory);
         }
     }
 }
