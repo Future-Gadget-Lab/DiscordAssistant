@@ -26,15 +26,19 @@ namespace Assistant.Modules
         {
             if (_usages.GetValueOrDefault(context.User.Id, 0) >= _limit)
                 return Task.FromResult(PreconditionResult.FromError("You're using this command too frequently."));
-            Timer timer = new Timer();
-            timer.Interval = _time * 1000;
-            timer.Elapsed += async (object source, ElapsedEventArgs e) =>
+            _usages.AddOrUpdate(context.User.Id, (id) =>
             {
-                if (!_usages.TryRemove(context.User.Id, out int usages))
-                    await services.GetRequiredService<LoggingService>().LogAsync(new LogMessage(LogSeverity.Warning, "UsageLimit", "Remove failed."));
-            };
-            timer.Enabled = true;
-            _usages.AddOrUpdate(context.User.Id, 1, (id, usage) => usage + 1);
+                Timer timer = new Timer();
+                timer.Interval = _time * 1000;
+                timer.Elapsed += async (object source, ElapsedEventArgs e) =>
+                {
+                    if (!_usages.TryRemove(context.User.Id, out int usages))
+                        await services.GetRequiredService<LoggingService>().LogAsync(new LogMessage(LogSeverity.Warning, "UsageLimit", "Remove failed."));
+                };
+                timer.Enabled = true;
+                timer.AutoReset = false;
+                return 1;
+            }, (id, usage) => usage + 1);
             return Task.FromResult(PreconditionResult.FromSuccess());
         }
     }
