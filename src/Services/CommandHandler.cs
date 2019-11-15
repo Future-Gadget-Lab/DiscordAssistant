@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using Assistant.Modules.CodeExec;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,7 @@ namespace Assistant.Services
         {
             _client.MessageReceived += HandleCommand;
             _commands.CommandExecuted += CommandExecuted;
+            _commands.AddTypeReader<CodeSnippet>(new CodeSnippetTypeReader());
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
