@@ -12,7 +12,7 @@ namespace Assistant.Modules.CodeExec
     [Group("exec")]
     public class ExecModule : ModuleBase
     {
-        private readonly string SnippetDirectory = "submitted_code";
+        private readonly string SnippetDirectory;
         private static readonly string ContainerDirectory = "/home/submitted_code";
         private static readonly List<ILanguage> Languages = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(ILanguage).IsAssignableFrom(t) && !t.IsInterface)
