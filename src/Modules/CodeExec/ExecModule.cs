@@ -61,7 +61,19 @@ namespace Assistant.Modules.CodeExec
             ILanguage language = GetLanguage(snippet.Language);
             if (language == null)
             {
-                await ReplyAsync("Unsupported language.");
+                EmbedBuilder response = new EmbedBuilder()
+                    .WithTitle($"Unsupported language '{snippet.Language}'")
+                    .WithDescription("**Supported languages:**\n");
+
+                foreach (ILanguage supported in Languages)
+                {
+                    response.Description += $"- {supported.Name}";
+                    if (supported.Aliases.Length > 0)
+                        response.Description += $" ({string.Join(", ", supported.Aliases)})";
+                    response.Description += '\n';
+                }
+
+                await ReplyAsync(embed: response.Build());
                 return;
             }
             try
