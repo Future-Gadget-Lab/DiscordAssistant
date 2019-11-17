@@ -56,7 +56,7 @@ namespace Assistant.Modules.CodeExec
 
         [Command]
         [UsageLimit(10, 2)]
-        public async Task Exec([Remainder]CodeSnippet snippet)
+        public async Task Execute([Remainder]CodeSnippet snippet)
         {
             ILanguage language = GetLanguage(snippet.Language);
             if (language == null)
@@ -64,15 +64,7 @@ namespace Assistant.Modules.CodeExec
                 EmbedBuilder response = new EmbedBuilder()
                     .WithTitle($"Unsupported language '{snippet.Language}'")
                     .WithDescription("**Supported languages:**\n");
-
-                foreach (ILanguage supported in Languages)
-                {
-                    response.Description += $"- {supported.Name}";
-                    if (supported.Aliases.Length > 0)
-                        response.Description += $" ({string.Join(", ", supported.Aliases)})";
-                    response.Description += '\n';
-                }
-
+                AppendLanguageDetails(response);
                 await ReplyAsync(embed: response.Build());
                 return;
             }
@@ -84,6 +76,26 @@ namespace Assistant.Modules.CodeExec
             catch (TimeoutException)
             {
                 await ReplyAsync($"{Context.User.Mention} Execution timed out");
+            }
+        }
+
+        [Command("languages"), Alias("langs")]
+        public Task ListLanguages()
+        {
+            EmbedBuilder response = new EmbedBuilder()
+                .WithTitle("Supported languages:");
+            AppendLanguageDetails(response);
+            return ReplyAsync(embed: response.Build());
+        }
+
+        private void AppendLanguageDetails(EmbedBuilder embed)
+        {
+            foreach (ILanguage supported in Languages)
+            {
+                embed.Description += $"- {supported.Name}";
+                if (supported.Aliases.Length > 0)
+                    embed.Description += $" ({string.Join(", ", supported.Aliases)})";
+                embed.Description += '\n';
             }
         }
 
