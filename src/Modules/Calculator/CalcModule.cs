@@ -34,11 +34,17 @@ namespace Assistant.Modules.Calculator
                 await ReplyAsync($"Please use a grid with an area less than or equal to 1,000,000.");
                 return;
             }
+            else if (width < 100 || height < 100)
+            {
+                await ReplyAsync($"Graphs must have a width and height of at least 100");
+                return;
+            }
 
             try
             {
                 using Stream stream = await Task.Run(() =>
                 {
+                    int dotRadius = Math.Min(10, (int)Math.Ceiling(0.015 * height));
                     using Bitmap graph = new Bitmap(width % 10 == 0 ? width + 1 : width, height % 10 == 0 ? height + 1 : height);
                     using Graphics graphics = Graphics.FromImage(graph);
 
@@ -52,7 +58,7 @@ namespace Assistant.Modules.Calculator
                     {
                         double y = Math.Round(ExpressionSolver.SolveExpression(expression.Replace("x", x.ToString())));
                         if (y >= graph.Height || double.IsNaN(y)) continue;
-                        DrawDot(graph, Color.Red, new Point((int)x, graph.Height - (int)y - 1), 4);
+                        DrawDot(graph, Color.Red, new Point((int)x, graph.Height - (int)y - 1), dotRadius);
                     }
 
                     MemoryStream stream = new MemoryStream();
