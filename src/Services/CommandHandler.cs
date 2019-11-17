@@ -32,10 +32,15 @@ namespace Assistant.Services
         public async Task Initialize()
         {
             _client.MessageReceived += HandleCommand;
+            _client.MessageUpdated += MessageUpdated;
             _commands.CommandExecuted += CommandExecuted;
             _commands.AddTypeReader<CodeSnippet>(new CodeSnippetTypeReader());
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
+
+        // Check if updated message is a command
+        private Task MessageUpdated(Cacheable<IMessage, ulong> old, SocketMessage updated, ISocketMessageChannel channel) =>
+            HandleCommand(updated);
 
         private async Task CommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
