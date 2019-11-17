@@ -25,9 +25,9 @@ namespace Assistant.Modules.Calculator
             }
         }
 
-        // TODO: show all quadrants
+        // TODO: separate command for plots
         [Command("graph")]
-        public async Task Graph(int width, int height, [Remainder]string expression)
+        public async Task Graph(int height, int width, [Remainder]string expression)
         {
             if (height * width > 1000000)
             {
@@ -44,9 +44,9 @@ namespace Assistant.Modules.Calculator
             {
                 using Stream stream = await Task.Run(() =>
                 {
-                    int dotRadius = Math.Min(10, (int)Math.Ceiling(0.015 * height));
                     using Bitmap graph = new Bitmap(width % 10 == 0 ? width + 1 : width, height % 10 == 0 ? height + 1 : height);
                     using Graphics graphics = Graphics.FromImage(graph);
+                    graphics.Clear(Color.White);
 
                     for (int x = 0; x < graph.Width; x += width / 10)
                         graphics.DrawLine(new Pen(Color.Gray, 1), x, 0, x, graph.Height - 1);
@@ -54,11 +54,12 @@ namespace Assistant.Modules.Calculator
                     for (int y = 0; y < graph.Width; y += height / 10)
                         graphics.DrawLine(new Pen(Color.Gray, 1), 0, y, graph.Width - 1, y);
 
-                    for (double x = 0; x < graph.Height; x += 1)
+                    for (double x = -graph.Width / 2; x < graph.Width / 2; x += 0.01)
                     {
-                        double y = Math.Round(ExpressionSolver.SolveExpression(expression.Replace("x", x.ToString())));
-                        if (y >= graph.Height || double.IsNaN(y)) continue;
-                        DrawDot(graph, Color.Red, new Point((int)x, graph.Height - (int)y - 1), dotRadius);
+                        double y = Math.Round(ExpressionSolver.SolveExpression(expression.Replace("x", x.ToString()))) + graph.Height / 2;
+                        int yPlot = graph.Height - (int)y - 1;
+                        if (yPlot < 0 || yPlot >= graph.Height || double.IsNaN(y)) continue;
+                        graph.SetPixel((int)x + graph.Width / 2, yPlot, Color.Red);
                     }
 
                     MemoryStream stream = new MemoryStream();
@@ -67,7 +68,14 @@ namespace Assistant.Modules.Calculator
                     return stream;
                 });
 
-                await Context.Channel.SendFileAsync(stream, "Graph.png");
+
+                // Using Discord namespace conflicts with System.Drawing classes
+                Discord.Embed embed = new Discord.EmbedBuilder()
+                    .WithTitle("Graphing Calculator")
+                    .WithDescription($"Expression: y = {expression}\nSize: {height}x{width}")
+                    .WithImageUrl("attachment://graph.png")
+                    .Build();
+                await Context.Channel.SendFileAsync(stream, "graph.png", embed: embed);
             }
             catch (ParseException e)
             {
