@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Assistant.Modules.CodeExec
 {
-    [Group("exec")]
+    [Group("execute"), Alias("exec")]
     public class ExecModule : ModuleBase
     {
         private readonly string _snippets;

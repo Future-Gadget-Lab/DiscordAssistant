@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Assistant.Modules.Calculator
 {
-    [Group("calc")]
+    [Group("calculate"), Alias("calc")]
     public class CalcModule : ModuleBase
     {
         [Command]

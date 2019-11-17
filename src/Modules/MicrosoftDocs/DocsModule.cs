@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Assistant.Modules.MicrosoftDocs
 {
-    [Group("docs")]
+    [Group("documentation"), Alias("docs")]
     public class DocsModule : ModuleBase
     {
         private readonly HttpService _http;
