@@ -103,10 +103,11 @@ namespace Assistant.Modules.CodeExec
         {
             using DockerContainer container = await DockerContainer.CreateContainerAsync(lang.DockerImage, _config);
             // Because Java is dumb
-            char[] classChars = new char[8];
-            for (int i = 0; i < classChars.Length; i++)
-                classChars[i] = AlphabeticChars[_random.Next(AlphabeticChars.Length)];
-            string mainClass = new string(classChars);
+            string mainClass = string.Create(8, _random, (Span<char> chars, Random random) =>
+            {
+                for (int i = 0; i < chars.Length; i++)
+                    chars[i] = AlphabeticChars[_random.Next(AlphabeticChars.Length)];
+            });
             string localDir = Path.Combine(_snippets, Context.User.Id.ToString());
             string codeFile = $"{mainClass}.{lang.Extension}";
             string codeFilePath = Path.Combine(localDir, codeFile);
