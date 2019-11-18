@@ -19,11 +19,11 @@ namespace Assistant.Modules.CodeExec
 
     public class CodeSnippetTypeReader : TypeReader
     {
-        private static readonly Regex SnippetRegex = new Regex("^```([A-Za-z]*)\\n(.+)```$", RegexOptions.Singleline);
+        private static readonly Regex SnippetRegex = new Regex("^```([A-Za-z]+)\\n(.+)```$", RegexOptions.Singleline);
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
             if (!SnippetRegex.IsMatch(input))
-                return Task.FromResult(TypeReaderResult.FromError(CommandError.ParseFailed, "Invalid code snippet provided."));
+                return Task.FromResult(TypeReaderResult.FromError(CommandError.ParseFailed, "Invalid code snippet provided, please use a multiline, syntax-highlighted markdown code block."));
             Match match = SnippetRegex.Match(input);
             return Task.FromResult(TypeReaderResult.FromSuccess(new CodeSnippet(match.Groups[1].Value, match.Groups[2].Value)));
         }
