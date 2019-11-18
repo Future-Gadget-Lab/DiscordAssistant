@@ -22,10 +22,7 @@ namespace Assistant.Services
             _config = services.GetRequiredService<AssistantConfig>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _logger = services.GetRequiredService<LoggingService>();
-            _commands = services.GetService<CommandService>() ?? new CommandService(new CommandServiceConfig
-            {
-                DefaultRunMode = RunMode.Async,
-            });
+            _commands = services.GetRequiredService<CommandService>();
             _services = services;
         }
 

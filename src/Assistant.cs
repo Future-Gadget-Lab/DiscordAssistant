@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Discord.Commands;
 
 namespace Assistant
 {
@@ -25,6 +26,7 @@ namespace Assistant
             _services = new ServiceCollection()
                 .AddSingleton(_config)
                 .AddSingleton(_client)
+                .AddSingleton(new CommandService(new CommandServiceConfig { DefaultRunMode = RunMode.Async }))
                 .AddSingleton<Random>()
                 .AddSingleton<HttpService>()
                 .AddSingleton<CommandHandler>()
