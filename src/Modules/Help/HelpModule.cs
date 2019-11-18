@@ -54,9 +54,9 @@ namespace Assistant.Modules.Help
             {
                 if (!(await cmd.CheckPreconditionsAsync(Context)).IsSuccess) continue;
                 EmbedFieldBuilder field = new EmbedFieldBuilder()
-                    .WithName(GetCommandSignature(cmd.Command));
+                    .WithName(cmd.Command.Name.ToLower());
 
-                field.Value += $"**Name**\n{cmd.Command.Name}\n";
+                field.Value += $"**Signature**\n{GetCommandSignature(cmd.Command)}\n";
                 field.Value += $"**Aliases**\n{string.Join(", ", cmd.Command.Aliases)}\n";
                 field.Value += "**Summary**\n";
                 if (!string.IsNullOrEmpty(cmd.Command.Summary))
