@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 namespace Assistant.Modules.Calculator
 {
     [Group("calculate"), Alias("calc")]
+    [Summary("Do math stuff")]
     public class CalcModule : ModuleBase
     {
-        [Command]
-        [Priority(-1)]
+        [Command, Priority(-1)]
+        [Summary("Solve a mathematical expression")]
         public async Task Calc([Remainder]string expression)
         {
             try
@@ -25,8 +26,8 @@ namespace Assistant.Modules.Calculator
             }
         }
 
-        // TODO: separate command for plots
         [Command("graph")]
+        [Summary("Graph a given y-intercept formula")]
         public async Task Graph(int height, int width, [Remainder]string expression)
         {
             if (height * width > 1000000)

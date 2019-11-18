@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace Assistant.Modules.CodeExec
 {
     [Group("execute"), Alias("exec")]
+    [Summary("Execute code and view related information")]
     public class ExecModule : ModuleBase
     {
         private readonly string _snippets;
@@ -56,6 +57,7 @@ namespace Assistant.Modules.CodeExec
 
         [Command]
         [UsageLimit(10, 2)]
+        [Summary("Executes submitted code")]
         public async Task Execute([Remainder]CodeSnippet snippet)
         {
             ILanguage language = GetLanguage(snippet.Language);
@@ -80,6 +82,7 @@ namespace Assistant.Modules.CodeExec
         }
 
         [Command("languages"), Alias("langs")]
+        [Summary("View supported languages")]
         public Task ListLanguages()
         {
             EmbedBuilder response = new EmbedBuilder()

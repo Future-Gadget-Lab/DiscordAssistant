@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace Assistant.Modules.Help
 {
     [Group("help")]
+    [Summary("Get help")]
     public class HelpModule : ModuleBase
     {
         private readonly CommandService _commands;
@@ -20,6 +21,7 @@ namespace Assistant.Modules.Help
         }
 
         [Command]
+        [Summary("View info about all available commands")]
         public Task Help()
         {
             EmbedBuilder embed = new EmbedBuilder();
@@ -37,6 +39,7 @@ namespace Assistant.Modules.Help
         }
 
         [Command]
+        [Summary("Get help with a particular command")]
         public async Task Help([Remainder]string command)
         {
             SearchResult result = _commands.Search(command);

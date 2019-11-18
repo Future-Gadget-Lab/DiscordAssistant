@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace Assistant.Modules.MicrosoftDocs
 {
     [Group("documentation"), Alias("docs")]
+    [Summary("View Microsoft documentation")]
     public class DocsModule : ModuleBase
     {
         private readonly HttpService _http;
@@ -42,18 +43,22 @@ namespace Assistant.Modules.MicrosoftDocs
         }
 
         [Command, Priority(-1)]
+        [Summary("Default documentation (.NET)")]
         public Task Docs([Remainder]string search) =>
             DotnetDocs(search);
 
         [Command("dotnet"), Alias(".net")]
+        [Summary("View .NET related documentation")]
         public async Task DotnetDocs([Remainder]string search) =>
             await ReplyAsync(embed: await GetDocsEmbed(search, ".NET"));
 
         [Command("asp"), Alias("asp.net")]
+        [Summary("View ASP.NET related documentation")]
         public async Task AspDocs([Remainder]string search) =>
             await ReplyAsync(embed: await GetDocsEmbed(search, "ASP.NET"));
 
         [Command("sql")]
+        [Summary("View SQL related documentation")]
         public async Task SqlDocs([Remainder]string search) =>
             await ReplyAsync(embed: await GetDocsEmbed(search, "SQL"));
     }
