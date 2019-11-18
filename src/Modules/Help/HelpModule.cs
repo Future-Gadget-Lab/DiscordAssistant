@@ -27,7 +27,7 @@ namespace Assistant.Modules.Help
             {
                 EmbedFieldBuilder field = new EmbedFieldBuilder();
                 if (!string.IsNullOrEmpty(module.Summary))
-                    field.Value = module.Summary;
+                    field.Value = $"{module.Summary}\n";
                 field.Name = $"{CultureInfo.CurrentCulture.TextInfo.ToTitleCase(module.Name)} ({string.Join(", ", module.Aliases)})";
                 foreach (CommandInfo command in module.Commands)
                     field.Value += $"- {GetCommandSignature(command)}\n";
