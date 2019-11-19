@@ -29,8 +29,11 @@ namespace Assistant.Modules.Calculator
 
         [Command("graph")]
         [Summary("Graph a given y-intercept formula")]
-        public async Task Graph(int height, int width, [Remainder]string expression)
+        public async Task Graph(Size size, [Remainder]string expression)
         {
+            int height = size.Height;
+            int width = size.Width;
+
             if (height * width > 1000000)
             {
                 await ReplyAsync($"Please use a grid with an area less than or equal to 1,000,000.");
