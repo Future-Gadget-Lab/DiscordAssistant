@@ -17,14 +17,15 @@ namespace Assistant.Modules.Calculator.Expressions
 
         public double Evaluate()
         {
-            double leftVal = _left.Evaluate();
+            double leftValue = _left.Evaluate();
             double rightValue = _right.Evaluate();
             return _op switch
             {
-                '+' => leftVal + rightValue,
-                '-' => leftVal - rightValue,
-                '*' => leftVal * rightValue,
-                '/' => leftVal / rightValue,
+                '+' => leftValue + rightValue,
+                '-' => leftValue - rightValue,
+                '*' => leftValue * rightValue,
+                '/' => leftValue / rightValue,
+                '^' => Math.Pow(leftValue, rightValue),
                 _ => throw new NotImplementedException($"Invalid operator '{_op}'.")
             };
         }

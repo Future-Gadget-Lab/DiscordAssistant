@@ -61,13 +61,25 @@ namespace Assistant.Modules.Calculator
 
         private IExpression Term()
         {
-            IExpression expr = Factor();
+            IExpression expr = Exponent();
             if (!MatchAny('*', '/'))
                 return expr;
 
-            BinaryExpression binaryExpr = new BinaryExpression(expr, ConsumeAny('*', '/'), Factor());
+            BinaryExpression binaryExpr = new BinaryExpression(expr, ConsumeAny('*', '/'), Exponent());
             while (MatchAny('*', '/'))
-                binaryExpr = new BinaryExpression(binaryExpr, ConsumeAny('*', '/'), Factor());
+                binaryExpr = new BinaryExpression(binaryExpr, ConsumeAny('*', '/'), Exponent());
+            return binaryExpr;
+        }
+
+        private IExpression Exponent()
+        {
+            IExpression expr = Factor();
+            if (!Match('^'))
+                return expr;
+
+            BinaryExpression binaryExpr = new BinaryExpression(expr, Consume(), Factor());
+            while (Match('^'))
+                binaryExpr = new BinaryExpression(binaryExpr, Consume(), Factor());
             return binaryExpr;
         }
 
@@ -81,7 +93,14 @@ namespace Assistant.Modules.Calculator
             if (Consume('('))
             {
                 expression = Expression();
-                Consume(')');
+                if (!Consume(')'))
+                    throw new ParseException("Expected ')'.");
+            }
+            else if (Consume('|'))
+            {
+                expression = new AbsoluteValue(Expression());
+                if (!Consume('|'))
+                    throw new ParseException("Expected '|'.");
             }
             else if (char.IsDigit(Current()))
             {
