@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Assistant.Modules.Calculator.Expressions;
+using Discord.Commands;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -55,9 +56,12 @@ namespace Assistant.Modules.Calculator
                     for (int y = 0; y < graph.Width; y += height / 10)
                         graphics.DrawLine(new Pen(Color.Gray, 1), 0, y, graph.Width - 1, y);
 
+                    ExpressionSolver solver = new ExpressionSolver(expression, true);
+                    IExpression expr = solver.Parse();
                     for (double x = -graph.Width / 2; x < graph.Width / 2; x += 0.01)
                     {
-                        double y = Math.Round(ExpressionSolver.SolveExpression(expression.Replace("x", x.ToString()))) + graph.Height / 2;
+                        solver.SetVariable('x', new Number(x));
+                        double y = Math.Round(expr.Evaluate()) + graph.Height / 2;
                         int yPlot = graph.Height - (int)y - 1;
                         if (yPlot < 0 || yPlot >= graph.Height || double.IsNaN(y)) continue;
                         graph.SetPixel((int)x + graph.Width / 2, yPlot, Color.Red);

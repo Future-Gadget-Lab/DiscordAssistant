@@ -1,4 +1,6 @@
 ﻿using Assistant.Modules.Calculator.Expressions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -7,16 +9,41 @@ namespace Assistant.Modules.Calculator
     // TODO: support exponents and absolute value
     public class ExpressionSolver
     {
+        private readonly List<Variable> _variables;
         private readonly string _expression;
         private int _pos;
 
-        public ExpressionSolver(string expression)
+        public ExpressionSolver(string expression, bool allowVars = false)
         {
+            if (allowVars)
+                _variables = new List<Variable>();
             _expression = expression;
         }
 
         public static double SolveExpression(string expression) =>
             new ExpressionSolver(expression).Solve();
+
+        public Variable SetVariable(char varName, double value) =>
+            SetVariable(varName, new Number(value));
+
+        public Variable SetVariable(char varName, Number value)
+        {
+            if (_variables == null)
+                throw new InvalidOperationException("This instance does not support variables.");
+            Variable variable = _variables.SingleOrDefault(v => v.Name == varName);
+            if (variable == null)
+            {
+                variable = new Variable(varName, value);
+                _variables.Add(variable);
+            }
+            else
+            {
+                variable.SetValue(value);
+            }
+            return variable;
+        }
+
+        public IExpression Parse() => Expression();
 
         public double Solve() => Expression().Evaluate();
 
@@ -50,32 +77,38 @@ namespace Assistant.Modules.Calculator
             if (Consume('-'))
                 unary = new UnaryExpression('-', null);
 
+            IExpression expression;
             if (Consume('('))
             {
-                IExpression expression = Expression();
+                expression = Expression();
                 Consume(')');
-                if (unary != null)
-                    return unary.WithRight(expression);
-                return expression;
             }
             else if (char.IsDigit(Current()))
             {
-                IExpression number = Number();
-                if (unary != null)
-                    return unary.WithRight(number);
-                return number;
+                expression = Number();
             }
-            throw new ParseException($"Unexpected token '{Current()}'.");
+            else if (char.IsLetter(Current()) && _variables != null)
+            {
+                expression = Variable();
+            }
+            else
+            {
+                throw new ParseException($"Unexpected token '{Current()}'.");
+            }
+
+            if (unary != null)
+                return unary.WithRight(expression);
+            return expression;
         }
+
+        private IExpression Variable() =>
+            SetVariable(Consume(), null);
 
         private IExpression Number()
         {
             StringBuilder digits = new StringBuilder();
             while (!IsAtEnd() && (char.IsDigit(_expression[_pos]) || _expression[_pos] == '.'))
-            {
-                digits.Append(Current());
-                Advance();
-            }
+                digits.Append(Consume());
             return new Number(double.Parse(digits.ToString()));
         }
 
@@ -103,6 +136,13 @@ namespace Assistant.Modules.Calculator
 
         private bool MatchAny(params char[] chars) =>
             !IsAtEnd() && chars.Any(c => Match(c));
+
+        private char Consume()
+        {
+            char c = Current();
+            Advance();
+            return c;
+        }
 
         private bool Consume(char c)
         {
