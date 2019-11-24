@@ -124,10 +124,16 @@ namespace Assistant.Modules.Calculator
 
         private IExpression Number()
         {
-            StringBuilder digits = new StringBuilder();
-            while (!IsAtEnd() && (char.IsDigit(_expression[_pos]) || _expression[_pos] == '.'))
-                digits.Append(Consume());
-            return new Number(double.Parse(digits.ToString()));
+            int start = _pos;
+            bool hitDecimal = false;
+            while (!IsAtEnd() && (char.IsDigit(_expression[_pos]) || (_expression[_pos] == '.' && !hitDecimal && char.IsDigit(Peek()))))
+            {
+                if (_expression[_pos] == '.')
+                    hitDecimal = true;
+                Advance();
+            }
+            ReadOnlySpan<char> digits = _expression.AsSpan(start, _pos - start);
+            return new Number(double.Parse(digits));
         }
 
         private bool IsAtEnd() => _pos >= _expression.Length;
@@ -140,6 +146,13 @@ namespace Assistant.Modules.Calculator
             while (!IsAtEnd() && char.IsWhiteSpace(current))
                 current = _expression[++_pos];
             return current;
+        }
+
+        private char Peek()
+        {
+            if (_pos + 1 >= _expression.Length)
+                throw new ParseException("Unexpected end of expression.");
+            return _expression[_pos + 1];
         }
 
         private void Advance()

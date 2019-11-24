@@ -21,7 +21,7 @@ namespace Assistant.Modules.Calculator
                 double result = ExpressionSolver.SolveExpression(expression);
                 await ReplyAsync(result.ToString());
             }
-            catch (Exception e)
+            catch (ParseException e)
             {
                 await ReplyAsync(e.Message);
             }
