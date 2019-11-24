@@ -6,7 +6,6 @@ using System.Text;
 
 namespace Assistant.Modules.Calculator
 {
-    // TODO: support exponents and absolute value
     public class ExpressionSolver
     {
         private readonly List<Variable> _variables;
