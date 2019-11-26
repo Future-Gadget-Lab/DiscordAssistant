@@ -103,7 +103,7 @@ namespace Assistant.Modules.Calculator
                     int yp = y + center.Y;
                     if (xp < 0 || xp >= bitmap.Width || yp < 0 || yp >= bitmap.Height)
                         continue;
-                    bitmap.SetPixel(xp, yp, Color.Red);
+                    bitmap.SetPixel(xp, yp, color);
                 }
             }
         }
