@@ -28,7 +28,7 @@ namespace Assistant.Modules.CodeExec
         {
             _random = random;
             _snippets = config.SnippetPath ?? "submitted_code";
-            _config = _config ?? new ExecutionConfig
+            _config = config.Exec ?? new ExecutionConfig
             {
                 CPUs = 0.8F,
                 Memory = "250m",
